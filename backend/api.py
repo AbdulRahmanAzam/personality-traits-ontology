@@ -29,7 +29,7 @@ def load_ontology():
     """Load the ontology on startup."""
     global onto, ns
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    ontology_path = os.path.join(script_dir, "ontology2.owl")
+    ontology_path = os.path.join(script_dir, "ontology.owl")
     onto = get_ontology(f"file://{ontology_path}").load()
     ns = onto.get_namespace("http://www.personality-ontology.org/bigfive#")
 
