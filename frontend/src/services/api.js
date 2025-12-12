@@ -2,38 +2,67 @@
 
 // const API_BASE_URL = 'http://localhost:8000/api';
 const API_BASE_URL = 'https://scoremebackend.abdulrahmanazam.me/api';
+// Base root (without trailing /api)
+const API_ROOT = API_BASE_URL.replace(/\/api\/?$/i, '');
 
 /**
  * Fetch all questions and Likert options from the ontology
  */
 export async function fetchQuestions() {
-  const response = await fetch(`${API_BASE_URL}/questions`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch questions from API');
+  const url = `${API_BASE_URL}/questions`;
+  console.log('API: GET', url);
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    console.log('API response (questions):', response.status, text);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch questions: ${response.status}`);
+    }
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('fetchQuestions error:', err);
+    throw err;
   }
-  return response.json();
 }
 
 /**
  * Fetch Likert scale options
  */
 export async function fetchLikertOptions() {
-  const response = await fetch(`${API_BASE_URL}/likert-options`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch Likert options from API');
+  const url = `${API_BASE_URL}/likert-options`;
+  console.log('API: GET', url);
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    console.log('API response (likert-options):', response.status, text);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch likert options: ${response.status}`);
+    }
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('fetchLikertOptions error:', err);
+    throw err;
   }
-  return response.json();
 }
 
 /**
  * Fetch trait information
  */
 export async function fetchTraits() {
-  const response = await fetch(`${API_BASE_URL}/traits`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch traits from API');
+  const url = `${API_BASE_URL}/traits`;
+  console.log('API: GET', url);
+  try {
+    const response = await fetch(url);
+    const text = await response.text();
+    console.log('API response (traits):', response.status, text);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch traits: ${response.status}`);
+    }
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('fetchTraits error:', err);
+    throw err;
   }
-  return response.json();
 }
 
 /**
@@ -41,17 +70,24 @@ export async function fetchTraits() {
  * @param {Object} data - { responses: {questionId: score}, userData: {} }
  */
 export async function submitAssessment(data) {
-  const response = await fetch(`${API_BASE_URL}/submit`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    throw new Error('Failed to submit assessment');
+  const url = `${API_BASE_URL}/submit`;
+  console.log('API: POST', url, data);
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    const text = await response.text();
+    console.log('API response (submit):', response.status, text);
+    if (!response.ok) {
+      throw new Error(`Failed to submit assessment: ${response.status}`);
+    }
+    return JSON.parse(text);
+  } catch (err) {
+    console.error('submitAssessment error:', err);
+    throw err;
   }
-  return response.json();
 }
 
 /**
@@ -59,7 +95,10 @@ export async function submitAssessment(data) {
  */
 export async function checkApiHealth() {
   try {
-    const response = await fetch('http://localhost:8000/');
+    const url = `${API_ROOT}/`;
+    console.log('API health-check:', url);
+    const response = await fetch(url);
+    console.log('API health status:', response.status);
     return response.ok;
   } catch {
     return false;
