@@ -31,7 +31,7 @@ def load_ontology():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     ontology_path = os.path.join(script_dir, "ontology.owl")
     # onto = get_ontology(f"file://{ontology_path}").load()
-    onto = get_ontology(f"file://{ontology_path}").load(format="rdfxml")
+    onto = get_ontology(f"file://{ontology_path}").load(format="turtle")
 
     ns = onto.get_namespace("http://www.personality-ontology.org/bigfive#")
 
