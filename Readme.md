@@ -53,7 +53,7 @@ SWRL Rules - Rule-based recommendations (e.g., career matching)
 
 
 # 📁 Recommended Backend Restructure
-
+```
 backend/
 ├── api.py                      # Entry point (minimal)
 ├── ontology.owl                # ← Fix: use this name
@@ -69,7 +69,7 @@ backend/
 │       ├── ontology_service.py # Load & query ontology
 │       ├── scoring_service.py  # Calculate scores
 │       └── reasoner_service.py # OWL reasoning (NEW)
-
+```
 
 # To make this a standout KRR project, implement these 4 features:
 
