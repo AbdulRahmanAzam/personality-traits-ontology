@@ -22,7 +22,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
-COPY app/ontology.owl /app/ontology.owl
+COPY app/bigfive.rdf /app/bigfive.rdf
 
 # Expose port 8000
 EXPOSE 8000
