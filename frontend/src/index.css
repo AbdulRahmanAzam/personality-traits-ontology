@@ -1,47 +1,51 @@
+@import "tailwindcss";
+
+/* Minimal base styles - Tailwind handles most styling */
 :root {
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #1f2937;
-  background-color: #f8fafc;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  min-width: 320px;
   min-height: 100vh;
 }
 
-#root {
-  min-height: 100vh;
+/* Keyframe animations used by components */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-a {
-  font-weight: 500;
-  color: #0ea5e9;
-  text-decoration: none;
+@keyframes pulse-ready {
+  0%, 100% { box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); }
+  50% { box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6); }
 }
 
-a:hover {
-  color: #0284c7;
+@keyframes float-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-button {
-  font-family: inherit;
-  cursor: pointer;
+@keyframes pulse-float {
+  0%, 100% { box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4), 0 0 0 4px rgba(16, 185, 129, 0.1); }
+  50% { box-shadow: 0 15px 50px rgba(16, 185, 129, 0.5), 0 0 0 8px rgba(16, 185, 129, 0.15); }
 }
 
-button:focus-visible {
-  outline: 2px solid #0ea5e9;
-  outline-offset: 2px;
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-pop {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }

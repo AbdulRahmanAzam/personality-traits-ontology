@@ -1,12 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
-import LandingPage from './components/LandingPage';
-import WelcomeForm from './components/WelcomeForm';
-import QuestionCard from './components/QuestionCard';
-import Results from './components/Results';
+import { LandingPage, WelcomeForm, QuestionCard, Results } from './components';
 import { fetchQuestions, fetchTraits, checkApiHealth } from './services/api';
-import './App.css';
 
-// Screen states
+// Screen states as constants for type safety and maintainability
 const SCREENS = {
   LANDING: 'landing',
   WELCOME: 'welcome',
@@ -17,15 +13,20 @@ const SCREENS = {
 };
 
 function App() {
+  // UI State
   const [currentScreen, setCurrentScreen] = useState(SCREENS.LANDING);
+  
+  // User Data State
   const [userData, setUserData] = useState(null);
   const [surveyStartTime, setSurveyStartTime] = useState(0);
   const [assessmentData, setAssessmentData] = useState(null);
   
-  // Data from API
+  // API Data State
   const [questions, setQuestions] = useState([]);
   const [likertOptions, setLikertOptions] = useState([]);
   const [traitInfo, setTraitInfo] = useState({});
+  
+  // API Status State
   const [apiError, setApiError] = useState(null);
   const [isApiReady, setIsApiReady] = useState(false);
 
@@ -66,6 +67,7 @@ function App() {
     loadData();
   }, []);
 
+  // Navigation handlers
   const handleStartAssessment = useCallback(() => {
     if (!isApiReady) {
       setCurrentScreen(SCREENS.ERROR);
@@ -95,20 +97,27 @@ function App() {
   // Show error if API is not available
   if (apiError && currentScreen !== SCREENS.LANDING) {
     return (
-      <div className="app">
-        <div className="error-container">
-          <h2>⚠️ Connection Error</h2>
-          <p>{apiError}</p>
-          <p>Make sure the FastAPI backend is running:</p>
-          <code>cd backend && uvicorn api:app --reload</code>
-          <button onClick={() => window.location.reload()}>Retry</button>
+      <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-900 to-cyan-900">
+        <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">⚠️ Connection Error</h2>
+          <p className="text-red-300 mb-4">{apiError}</p>
+          <p className="text-gray-300 mb-4">Make sure the FastAPI backend is running:</p>
+          <code className="bg-black/30 text-cyan-300 px-4 py-2 rounded-lg font-mono text-sm mb-6">
+            cd backend && uvicorn api:app --reload
+          </code>
+          <button 
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-linear-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-xl hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg hover:shadow-xl"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="app">
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-900 to-cyan-900">
       {currentScreen === SCREENS.LANDING && (
         <LandingPage 
           onStartAssessment={handleStartAssessment} 
@@ -138,8 +147,11 @@ function App() {
             questions={questions}
             traitInfo={traitInfo}
           />
-          <div className="restart-section">
-            <button className="restart-button" onClick={handleRestart}>
+          <div className="flex justify-center py-8 bg-linear-to-b from-transparent to-slate-100">
+            <button 
+              className="px-8 py-4 bg-linear-to-r from-slate-700 to-slate-800 text-white font-semibold rounded-2xl hover:from-slate-600 hover:to-slate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
+              onClick={handleRestart}
+            >
               Start New Assessment
             </button>
           </div>
@@ -150,3 +162,4 @@ function App() {
 }
 
 export default App;
+
