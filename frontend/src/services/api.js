@@ -1,7 +1,7 @@
 // API service for Big Five Personality Assessment
 
-const API_BASE_URL = 'http://localhost:8000/api';
-// const API_BASE_URL = 'https://scoremebackend.abdulrahmanazam.me/api';
+// const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'https://scoremebackend.abdulrahmanazam.me/api';
 // Base root (without trailing /api)
 const API_ROOT = API_BASE_URL.replace(/\/api\/?$/i, '');
 
