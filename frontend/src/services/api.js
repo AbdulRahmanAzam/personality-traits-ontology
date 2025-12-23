@@ -1,7 +1,7 @@
 // API service for Big Five Personality Assessment
 
-// const API_BASE_URL = 'http://localhost:8000/api';
-const API_BASE_URL = 'https://scoremebackend.abdulrahmanazam.me/api';
+const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'http://139.59.64.246:8000/api';
 // Base root (without trailing /api)
 const API_ROOT = API_BASE_URL.replace(/\/api\/?$/i, '');
 
@@ -26,6 +26,15 @@ async function apiFetch(endpoint, options = {}) {
     
     return JSON.parse(text);
   } catch (err) {
+    // Enhanced error logging for network failures
+    if (err.message.includes('fetch')) {
+      console.error(`❌ Backend Connection Failed: Unable to connect to ${API_BASE_URL}`);
+      console.error('   Error Details:', err.message);
+      console.error('   Make sure the backend server is running at:', API_BASE_URL);
+      console.error('   Run: cd backend && uvicorn api:app --reload');
+    } else {
+      console.error(`❌ API Error on ${endpoint}:`, err.message);
+    }
     log('Error:', err.message);
     throw err;
   }
@@ -87,12 +96,19 @@ export async function getAssessmentStats() {
 
 /**
  * Check if API is running
+ * Falls back to checking /questions endpoint if /health is not available
  */
 export async function checkApiHealth() {
   try {
     const data = await apiFetch('/health');
     return data.ontology === 'loaded';
   } catch {
-    return false;
+    // Fallback: try /questions endpoint if /health doesn't exist
+    try {
+      const questionsData = await apiFetch('/questions');
+      return questionsData.questions && questionsData.questions.length > 0;
+    } catch {
+      return false;
+    }
   }
 }

@@ -1,5 +1,36 @@
 # Things to work on later
 
+## Quick Start
+
+### Backend
+```powershell
+# PowerShell (Windows)
+cd backend
+.\run.ps1
+
+# Or manually:
+uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+```
+
+```bash
+# Bash (Linux/Mac)
+cd backend
+./run.sh
+
+# Or manually:
+uvicorn api:app --host 0.0.0.0 --port 8000 --reload
+```
+
+**Important:** Always use `--host 0.0.0.0` to make the backend accessible from the network!
+
+### Frontend
+```bash
+cd frontend
+npm run dev
+```
+
+---
+
 # BACKEND
 ```
 connect mongodb

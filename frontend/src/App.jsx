@@ -34,13 +34,21 @@ function App() {
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log('🔄 Checking API health...');
+        
         // Check if API is running
         const isHealthy = await checkApiHealth();
         if (!isHealthy) {
+          console.error('❌ Backend API health check failed!');
+          console.error('   The backend server is not responding at the expected endpoint.');
+          console.error('   Please start the FastAPI server:');
+          console.error('   cd backend && uvicorn api:app --reload');
           setApiError('Backend API is not running. Please start the FastAPI server.');
           return;
         }
 
+        console.log('✅ API is healthy, fetching data...');
+        
         // Fetch questions and Likert options
         const questionsData = await fetchQuestions();
         setQuestions(questionsData.questions);
@@ -58,8 +66,11 @@ function App() {
         });
         setTraitInfo(traitsMap);
         setIsApiReady(true);
+        console.log('✅ All data loaded successfully');
       } catch (error) {
-        console.error('Failed to load data from API:', error);
+        console.error('❌ Failed to load data from API');
+        console.error('   Error:', error.message);
+        console.error('   Stack:', error.stack);
         setApiError(`Failed to connect to API: ${error.message}`);
       }
     };
