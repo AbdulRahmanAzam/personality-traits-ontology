@@ -12,25 +12,18 @@ from scipy import stats
 
 from ..services.llm_service import get_llm_service
 from ..services.rag_service import get_rag_service
+from ..services.ontology_service import ontology_service
 from ..db.mongodb import assessments_collection
 
-router = APIRouter(prefix="/api/guidance", tags=["guidance"])
+router = APIRouter(prefix="/api/guidance", tags=["Guidance"])
 
-# Constants - centralized configuration
+# Trait display names mapping
 TRAIT_MAPPING = {
     "extraversion": "Extraversion",
     "agreeableness": "Agreeableness",
     "conscientiousness": "Conscientiousness",
     "neuroticism": "Neuroticism",
     "openness": "Openness"
-}
-
-POPULATION_NORMS = {
-    "extraversion": {"mean": 29.27, "std": 7.40},
-    "agreeableness": {"mean": 36.82, "std": 6.32},
-    "conscientiousness": {"mean": 34.04, "std": 6.72},
-    "neuroticism": {"mean": 22.37, "std": 7.91},
-    "openness": {"mean": 37.23, "std": 6.24}
 }
 
 
@@ -57,12 +50,28 @@ class GuidanceResponse(BaseModel):
 
 
 # Helper functions
+def _get_population_norms() -> Dict[str, Dict[str, float]]:
+    """Get population norms from ontology service or use defaults."""
+    if ontology_service.is_loaded:
+        return ontology_service.get_norms()
+    # Fallback defaults if ontology not loaded
+    return {
+        "extraversion": {"mean": 29.27, "std": 7.40},
+        "agreeableness": {"mean": 36.82, "std": 6.32},
+        "conscientiousness": {"mean": 34.04, "std": 6.72},
+        "neuroticism": {"mean": 22.37, "std": 7.91},
+        "openness": {"mean": 37.23, "std": 6.24}
+    }
+
+
 def _calculate_traits_from_scores(scores: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
-    """Calculate full trait data from stored scores. Eliminates duplicate code."""
+    """Calculate full trait data from stored scores."""
     traits = {}
+    norms = _get_population_norms()
+    
     for trait_key, trait_name in TRAIT_MAPPING.items():
         raw_score = scores.get(trait_key, {}).get("rawScore", 30)
-        norm = POPULATION_NORMS.get(trait_key, {"mean": 30, "std": 7})
+        norm = norms.get(trait_key, {"mean": 30, "std": 7})
         
         z_score = (raw_score - norm["mean"]) / norm["std"]
         percentile = stats.norm.cdf(z_score) * 100
@@ -103,7 +112,6 @@ def _build_predictions(predictions_data: Dict[str, Any]) -> Dict[str, Dict[str, 
             "interpretation": _get_prediction_interpretation(predictions_data.get("leadershipScore", 50))
         }
     }
-
 
 def _build_lifestyle_dict(lifestyle_answers: "LifestyleAnswers") -> Dict[str, str]:
     """Convert lifestyle answers model to dictionary."""

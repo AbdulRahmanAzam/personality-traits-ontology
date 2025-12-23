@@ -1,10 +1,29 @@
-# Things to work on later
+# Big Five Personality Assessment
+
+A full-stack personality assessment application using the IPIP-50 questionnaire with OWL ontology-driven architecture.
+
+## Features
+
+- **50-item IPIP personality questionnaire** - Measures Big Five traits
+- **Ontology-driven architecture** - Questions, norms, and scoring loaded from OWL ontology
+- **Big Five trait scoring** - Percentiles, T-scores, and interpretations
+- **Outcome predictions** - Job performance, academic performance, leadership effectiveness
+- **PDF report generation** - Professional assessment reports
+- **AI-powered guidance** - Personalized career and growth recommendations using RAG + Groq LLM
+- **MongoDB persistence** - Store and retrieve assessment results
 
 ## Quick Start
 
+### Prerequisites
+
+- Python 3.11+
+- Node.js 18+
+- MongoDB (optional, for data persistence)
+
 ### Backend
+
 ```powershell
-# PowerShell (Windows)
+# Windows (PowerShell)
 cd backend
 .\run.ps1
 
@@ -13,7 +32,7 @@ uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ```bash
-# Bash (Linux/Mac)
+# Linux/Mac
 cd backend
 ./run.sh
 
@@ -21,126 +40,105 @@ cd backend
 uvicorn api:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-**Important:** Always use `--host 0.0.0.0` to make the backend accessible from the network!
+> **Important:** Always use `--host 0.0.0.0` to make the backend accessible from the network!
+
+API Documentation: http://localhost:8000/docs
 
 ### Frontend
+
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 
----
+Frontend: http://localhost:5173
 
-# BACKEND
-```
-connect mongodb
-seperate the fastapi file
-seperate the ontology extraction file
-make database to store name, scores, answers of each, timestamp, each answer timestamp, percentile
-```
+### Environment Variables
 
-
-
-# FRONTEND
-make the frontend more better
-
-
-
-## TODO LIST GIVEN BY LLM
-
-🎯 Project Status Overview
-Component	Completion	Status
-OWL Ontology	100%	✅ All 50 IPIP questions, norms, correlations
-FastAPI Backend	85%	⚠️ Needs restructuring, ontology path fix
-React Frontend	95%	✅ All UI components complete
-Database	10%	❌ MongoDB configured but not integrated
-KRR Demonstration	70%	⚠️ Missing SPARQL/reasoner features
-Overall: ~75% Complete
-
-🌟 Unique Features (What Makes This Project Stand Out)
-Already Implemented:
-Ontology-Driven Architecture - Questions, norms, and scoring loaded entirely from OWL ontology (not hardcoded)
-Meta-Analytic Predictions - Predicts job/academic/leadership performance using real research correlations with study counts
-Statistical Rigor - Z-scores, percentiles, T-scores using population norms (N=23,994)
-Response Timing Analytics - Tracks per-question timing for research validity
-Research Transparency - Shows confidence intervals and number of studies for each prediction
-For Academic Excellence (Add These):
-SPARQL Queries - Demonstrate semantic querying capabilities
-OWL Reasoner Integration - Automatic inference using HermiT/Pellet
-SWRL Rules - Rule-based recommendations (e.g., career matching)
-
-
-# 🔴 HIGH PRIORITY (Do First)
-###	Task	File(s)	Effort	Description
-![alt text](image-3.png)
-
-# 🟡 MEDIUM PRIORITY (Academic Enhancement)
-###	Task	Effort	Description
-![alt text](image-2.png)
-
-
-# 🟢 LOW PRIORITY (Polish)
-###	Task	Effort	Description
-![alt text](image-1.png)
-
-
-# 📁 Recommended Backend Restructure
-```
-backend/
-├── api.py                      # Entry point (minimal)
-├── ontology.owl                # ← Fix: use this name
-├── app/
-│   ├── db/
-│   │   └── mongodb.py          # MongoDB connection & operations
-│   ├── routes/
-│   │   ├── questions.py        # GET /api/questions
-│   │   ├── assessment.py       # POST /api/submit
-│   │   ├── results.py          # GET/POST /api/results (NEW)
-│   │   └── sparql.py           # GET /api/sparql (NEW)
-│   └── services/
-│       ├── ontology_service.py # Load & query ontology
-│       ├── scoring_service.py  # Calculate scores
-│       └── reasoner_service.py # OWL reasoning (NEW)
+#### Backend (`backend/.env`)
+```env
+MONGODB_URI=mongodb+srv://...
+GROQ_API_KEY=your_groq_api_key
 ```
 
-# To make this a standout KRR project, implement these 4 features:
+#### Frontend (`frontend/.env`)
+```env
+VITE_API_URL=http://localhost:8000/api
+```
 
-1. SPARQL Query Endpoint
+## Project Structure
 
-# Demonstrate semantic queryingGET /api/sparql?query=SELECT ?q WHERE { ?q :measuresTrait :Extraversion }
-2. OWL Reasoner Integration
-Use owlready2's HermiT reasoner
-Automatically classify individuals
-Infer personality type based on scores
-3. SWRL Rules for Recommendations
+```
+├── backend/
+│   ├── api.py                    # FastAPI entry point
+│   ├── Dockerfile                # Docker configuration
+│   ├── requirements.txt          # Python dependencies
+│   ├── run.ps1 / run.sh          # Run scripts
+│   └── app/
+│       ├── db/                   # Database operations
+│       │   └── mongodb.py
+│       ├── knowledge/            # RAG knowledge base
+│       ├── models/               # Pydantic schemas
+│       │   └── schemas.py
+│       ├── routes/               # API endpoints
+│       │   ├── assessment.py     # POST /api/submit
+│       │   ├── guidance.py       # /api/guidance/*
+│       │   ├── health.py         # GET /api/health
+│       │   ├── questions.py      # GET /api/questions, /api/traits
+│       │   └── results.py        # /api/results/*, /api/export/pdf/*
+│       └── services/             # Business logic
+│           ├── assessment_service.py
+│           ├── llm_service.py
+│           ├── ontology_service.py
+│           ├── pdf_service.py
+│           └── rag_service.py
+│
+└── frontend/
+    ├── src/
+    │   ├── App.jsx               # Main application
+    │   ├── components/           # React components
+    │   │   ├── assessment/       # QuestionCard, Results
+    │   │   ├── forms/            # WelcomeForm
+    │   │   ├── guidance/         # GuidanceChat
+    │   │   └── pages/            # LandingPage
+    │   ├── services/
+    │   │   └── api.js            # API client
+    │   └── dev/                  # Development utilities
+    └── package.json
+```
 
-Person(?p) ∧ hasConscientiousness(?p, ?c) ∧ greaterThan(?c, 80)   → recommendRole(?p, "Project Manager")
-4. Ontology Visualization
-Generate ontology graph visualization
-Show class hierarchy and relationships
+## API Endpoints
 
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/health` | Health check |
+| GET | `/api/questions` | Get all 50 questions with Likert options |
+| GET | `/api/traits` | Get Big Five trait information |
+| POST | `/api/submit` | Submit assessment and get results |
+| GET | `/api/results` | List all assessments |
+| GET | `/api/results/{id}` | Get assessment by ID |
+| DELETE | `/api/results/{id}` | Delete assessment |
+| GET | `/api/export/pdf/{id}` | Export assessment as PDF |
+| GET | `/api/guidance/questions` | Get lifestyle questions |
+| POST | `/api/guidance/generate` | Generate personalized guidance |
+| POST | `/api/guidance/generate/stream` | Generate guidance (streaming) |
 
-![alt text](image.png)
+## Technology Stack
 
+### Backend
+- **FastAPI** - Modern Python web framework
+- **OWLReady2** - OWL ontology processing
+- **Motor** - Async MongoDB driver
+- **LangChain + Groq** - AI-powered guidance generation
+- **ReportLab** - PDF generation
+- **SciPy** - Statistical calculations
 
-# 🚀 Suggested Implementation Order
-Week 1:
+### Frontend
+- **React 18** - UI framework
+- **Vite** - Build tool
+- **TailwindCSS** - Styling
 
- Fix ontology path bug (5 min)
- Restructure backend folders (3-4 hrs)
- Connect MongoDB (2-3 hrs)
-Week 2:
+## License
 
- Add SPARQL endpoint (3-4 hrs)
- Add radar chart visualization (2-3 hrs)
- Add PDF export (3-4 hrs)
-Week 3:
-
- Add OWL reasoner demo (4-5 hrs)
- Add trait facets to ontology (3-4 hrs)
- Add SWRL rules (3-4 hrs)
-Week 4:
-
- Polish UI, update team info
- Write documentation
- Prepare presentation
+MIT

@@ -1,12 +1,10 @@
 // API service for Big Five Personality Assessment
 
-// const API_BASE_URL = 'http://localhost:8000/api';
-const API_BASE_URL = 'http://139.59.64.246:8000/api';
-// Base root (without trailing /api)
-const API_ROOT = API_BASE_URL.replace(/\/api\/?$/i, '');
+// Configure API URL based on environment
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://139.59.64.246:8000/api';
 
 // Enable for debugging (set to false in production)
-const DEBUG = false;
+const DEBUG = import.meta.env.DEV;
 const log = (...args) => DEBUG && console.log('[API]', ...args);
 
 /**
@@ -48,13 +46,6 @@ export async function fetchQuestions() {
 }
 
 /**
- * Fetch Likert scale options
- */
-export async function fetchLikertOptions() {
-  return apiFetch('/likert-options');
-}
-
-/**
  * Fetch trait information
  */
 export async function fetchTraits() {
@@ -85,13 +76,6 @@ export async function getAssessmentById(assessmentId) {
  */
 export async function getAllAssessments(limit = 100, skip = 0) {
   return apiFetch(`/results?limit=${limit}&skip=${skip}`);
-}
-
-/**
- * Get aggregate statistics
- */
-export async function getAssessmentStats() {
-  return apiFetch('/stats');
 }
 
 /**
