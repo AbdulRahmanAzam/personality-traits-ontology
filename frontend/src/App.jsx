@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { LandingPage, WelcomeForm, QuestionCard, Results } from './components';
+import { LandingPage, WelcomeForm, QuestionCard, Results, AdminLogin, AdminPanel } from './components';
 import { fetchQuestions, fetchTraits, checkApiHealth } from './services/api';
 
 // Screen states as constants for type safety and maintainability
@@ -8,6 +8,8 @@ const SCREENS = {
   WELCOME: 'welcome',
   ASSESSMENT: 'assessment',
   RESULTS: 'results',
+  ADMIN_LOGIN: 'admin_login',
+  ADMIN_PANEL: 'admin_panel',
   LOADING: 'loading',
   ERROR: 'error'
 };
@@ -15,6 +17,12 @@ const SCREENS = {
 function App() {
   // UI State
   const [currentScreen, setCurrentScreen] = useState(SCREENS.LANDING);
+  
+  // Theme State - persisted to localStorage
+  const [isDark, setIsDark] = useState(() => {
+    const saved = localStorage.getItem('theme');
+    return saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  });
   
   // User Data State
   const [userData, setUserData] = useState(null);
@@ -29,6 +37,32 @@ function App() {
   // API Status State
   const [apiError, setApiError] = useState(null);
   const [isApiReady, setIsApiReady] = useState(false);
+  
+  // Admin State
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  // Theme effect - sync with document
+  useEffect(() => {
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDark]);
+
+  // Check for admin route on mount
+  useEffect(() => {
+    if (window.location.pathname === '/admin') {
+      const storedToken = sessionStorage.getItem('adminToken');
+      if (storedToken) {
+        setIsAdminAuthenticated(true);
+        setCurrentScreen(SCREENS.ADMIN_PANEL);
+      } else {
+        setCurrentScreen(SCREENS.ADMIN_LOGIN);
+      }
+    }
+  }, []);
 
   // Load questions from API on mount
   useEffect(() => {
@@ -40,9 +74,6 @@ function App() {
         const isHealthy = await checkApiHealth();
         if (!isHealthy) {
           console.error('❌ Backend API health check failed!');
-          console.error('   The backend server is not responding at the expected endpoint.');
-          console.error('   Please start the FastAPI server:');
-          console.error('   cd backend && uvicorn api:app --reload');
           setApiError('Backend API is not running. Please start the FastAPI server.');
           return;
         }
@@ -68,14 +99,17 @@ function App() {
         setIsApiReady(true);
         console.log('✅ All data loaded successfully');
       } catch (error) {
-        console.error('❌ Failed to load data from API');
-        console.error('   Error:', error.message);
-        console.error('   Stack:', error.stack);
+        console.error('❌ Failed to load data from API:', error.message);
         setApiError(`Failed to connect to API: ${error.message}`);
       }
     };
 
     loadData();
+  }, []);
+
+  // Theme toggle handler
+  const toggleTheme = useCallback(() => {
+    setIsDark(prev => !prev);
   }, []);
 
   // Navigation handlers
@@ -105,10 +139,59 @@ function App() {
     setCurrentScreen(SCREENS.LANDING);
   }, []);
 
+  const handleAdminLogin = useCallback((success) => {
+    if (success) {
+      setIsAdminAuthenticated(true);
+      setCurrentScreen(SCREENS.ADMIN_PANEL);
+    }
+  }, []);
+
+  const handleAdminLogout = useCallback(() => {
+    sessionStorage.removeItem('adminToken');
+    setIsAdminAuthenticated(false);
+    setCurrentScreen(SCREENS.LANDING);
+    window.history.pushState({}, '', '/');
+  }, []);
+
+  const handleGoToAdmin = useCallback(() => {
+    window.history.pushState({}, '', '/admin');
+    const storedToken = sessionStorage.getItem('adminToken');
+    if (storedToken) {
+      setIsAdminAuthenticated(true);
+      setCurrentScreen(SCREENS.ADMIN_PANEL);
+    } else {
+      setCurrentScreen(SCREENS.ADMIN_LOGIN);
+    }
+  }, []);
+
+  // Theme toggle button component
+  const ThemeToggle = () => (
+    <button
+      onClick={toggleTheme}
+      className={`p-2 rounded-lg transition-all ${
+        isDark 
+          ? 'bg-slate-700 hover:bg-slate-600 text-yellow-400' 
+          : 'bg-white/10 hover:bg-white/20 text-white'
+      }`}
+      title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+    >
+      {isDark ? '☀️' : '🌙'}
+    </button>
+  );
+
+  // Admin screens
+  if (currentScreen === SCREENS.ADMIN_LOGIN) {
+    return <AdminLogin onLogin={handleAdminLogin} isDark={isDark} />;
+  }
+
+  if (currentScreen === SCREENS.ADMIN_PANEL && isAdminAuthenticated) {
+    return <AdminPanel onLogout={handleAdminLogout} isDark={isDark} />;
+  }
+
   // Show error if API is not available
   if (apiError && currentScreen !== SCREENS.LANDING) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-900 to-cyan-900">
+      <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-linear-to-br from-slate-900 via-blue-900 to-cyan-900'}`}>
         <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
           <h2 className="text-2xl font-bold text-white mb-4">⚠️ Connection Error</h2>
           <p className="text-red-300 mb-4">{apiError}</p>
@@ -128,17 +211,36 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-900 via-blue-900 to-cyan-900">
+    <div className={`min-h-screen ${isDark ? 'bg-slate-900' : 'bg-linear-to-br from-slate-900 via-blue-900 to-cyan-900'}`}>
+      {/* Fixed Theme Toggle & Admin Access */}
+      {(currentScreen === SCREENS.LANDING || currentScreen === SCREENS.WELCOME) && (
+        <div className="fixed top-4 right-4 z-50 flex gap-2">
+          <ThemeToggle />
+          <button
+            onClick={handleGoToAdmin}
+            className={`p-2 rounded-lg transition-all ${
+              isDark 
+                ? 'bg-slate-700 hover:bg-slate-600 text-white' 
+                : 'bg-white/10 hover:bg-white/20 text-white'
+            }`}
+            title="Admin Panel"
+          >
+            🔐
+          </button>
+        </div>
+      )}
+
       {currentScreen === SCREENS.LANDING && (
         <LandingPage 
           onStartAssessment={handleStartAssessment} 
           isApiReady={isApiReady}
           apiError={apiError}
+          isDark={isDark}
         />
       )}
 
       {currentScreen === SCREENS.WELCOME && (
-        <WelcomeForm onStart={handleWelcomeComplete} />
+        <WelcomeForm onStart={handleWelcomeComplete} isDark={isDark} />
       )}
       
       {currentScreen === SCREENS.ASSESSMENT && userData && questions.length > 0 && (
@@ -148,6 +250,7 @@ function App() {
           onComplete={handleAssessmentComplete}
           questions={questions}
           likertOptions={likertOptions}
+          isDark={isDark}
         />
       )}
       
@@ -157,13 +260,14 @@ function App() {
             assessmentData={assessmentData} 
             questions={questions}
             traitInfo={traitInfo}
+            isDark={isDark}
           />
-          <div className="flex justify-center py-8 bg-linear-to-b from-transparent to-slate-100">
+          <div className={`flex justify-center py-8 ${isDark ? 'bg-slate-800' : 'bg-linear-to-b from-transparent to-slate-100'}`}>
             <button 
               className="px-8 py-4 bg-linear-to-r from-slate-700 to-slate-800 text-white font-semibold rounded-2xl hover:from-slate-600 hover:to-slate-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1"
               onClick={handleRestart}
             >
-              Start New Assessment
+              Take Another Assessment
             </button>
           </div>
         </>
@@ -173,4 +277,3 @@ function App() {
 }
 
 export default App;
-

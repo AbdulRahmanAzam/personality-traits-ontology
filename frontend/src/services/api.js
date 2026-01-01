@@ -50,7 +50,7 @@ export async function fetchQuestions() {
  */
 export async function fetchTraits() {
   return apiFetch('/traits');
-}
+} 
 
 /**
  * Submit assessment responses and get results

@@ -13,3 +13,6 @@ export { default as Results } from './assessment/Results';
 
 // Guidance
 export { default as GuidanceChat } from './guidance/GuidanceChat';
+
+// Admin
+export { AdminLogin, AdminPanel } from './admin';

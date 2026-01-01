@@ -4,7 +4,7 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from io import BytesIO
-from ..services import pdf_service
+from ..services.pdf_service_v2 import generate_pdf
 from ..db.mongodb import (
     get_assessment_by_id,
     get_all_assessments,
@@ -48,13 +48,13 @@ async def export_pdf(assessment_id: str):
         raise HTTPException(status_code=404, detail="Assessment not found")
     
     try:
-        pdf_bytes = pdf_service.generate_pdf(assessment)
+        pdf_bytes = generate_pdf(assessment)
         user_name = assessment.get('user', {}).get('name', 'Report').replace(' ', '_')
         
         return StreamingResponse(
             BytesIO(pdf_bytes),
             media_type="application/pdf",
-            headers={"Content-Disposition": f'attachment; filename="{user_name}_report.pdf"'}
+            headers={"Content-Disposition": f'attachment; filename="{user_name}_personality_profile.pdf"'}
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"PDF generation failed: {e}")

@@ -25,7 +25,7 @@ function QuestionTooltip({ questionId, children }) {
           style={{ animation: 'fade-in 0.2s ease' }}
         >
           <span className="flex items-start gap-2">
-            <span className="text-cyan-400 text-lg flex-shrink-0">💡</span>
+            <span className="text-cyan-400 text-lg shrink-0">💡</span>
             <span className="leading-relaxed">{meaning}</span>
           </span>
           <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full w-0 h-0 border-8 border-transparent border-t-slate-800"></span>
@@ -35,7 +35,7 @@ function QuestionTooltip({ questionId, children }) {
   );
 }
 
-export function QuestionCard({ onComplete, userData, surveyStartTime, questions, likertOptions }) {
+export function QuestionCard({ onComplete, userData, surveyStartTime, questions, likertOptions, isDark = false }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [responses, setResponses] = useState({});
   const [questionTimestamps, setQuestionTimestamps] = useState({});
@@ -178,11 +178,14 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
         setIsAnimating(false);
       }, 200);
     } else if (viewMode === 'sequential' && unansweredQuestions.length > 0) {
-      // Reached end in sequential mode, switch to review
+      // Reached end in sequential mode with unanswered questions
+      // Automatically switch to review mode and show the first unanswered question
       setViewMode('review');
       setCurrentIndex(0);
+      // Show a notification that we're now in review mode
+      alert(`You have ${unansweredQuestions.length} unanswered question(s). Please complete all questions before submitting.`);
     }
-  }, [currentIndex, viewMode, questions.length, unansweredQuestions.length]);
+  }, [currentIndex, viewMode, questions.length, unansweredQuestions.length, unansweredQuestions]);
 
   const handleGoToQuestion = useCallback((index) => {
     if (viewMode === 'review') {
@@ -238,33 +241,33 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
 
   // Guard: If all questions are answered and we're beyond the array, show a loading state
   if (!currentQuestion && !showCompletionModal) {
-    return <div className="max-w-4xl mx-auto p-6 min-h-screen flex flex-col gap-5 bg-linear-to-b from-slate-50 to-slate-100">Processing your responses...</div>;
+    return <div className={`max-w-4xl mx-auto p-6 min-h-screen flex flex-col gap-5 ${isDark ? 'bg-slate-900' : 'bg-linear-to-b from-slate-50 to-slate-100'}`}>Processing your responses...</div>;
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 min-h-screen flex flex-col gap-5 bg-linear-to-b from-slate-50 to-slate-100">
+    <div className={`max-w-4xl mx-auto p-6 min-h-screen flex flex-col gap-5 ${isDark ? 'bg-slate-900' : 'bg-linear-to-b from-slate-50 to-slate-100'}`}>
       {/* Completion Modal */}
       {showCompletionModal && allAnswered && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center z-50" style={{ animation: 'fade-in 0.3s ease' }}>
-          <div className="bg-white rounded-3xl p-12 max-w-lg w-[90%] text-center shadow-2xl" style={{ animation: 'modal-pop 0.4s ease' }}>
+          <div className={`rounded-3xl p-12 max-w-lg w-[90%] text-center shadow-2xl ${isDark ? 'bg-slate-800' : 'bg-white'}`} style={{ animation: 'modal-pop 0.4s ease' }}>
             <div className="w-20 h-20 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center text-4xl text-white mx-auto mb-6 shadow-lg shadow-emerald-500/40">
               ✓
             </div>
-            <h2 className="text-2xl font-bold text-slate-800 mb-3">Assessment Complete!</h2>
-            <p className="text-slate-500 text-lg mb-8">You've answered all {questions.length} questions.</p>
+            <h2 className={`text-2xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-800'}`}>Assessment Complete!</h2>
+            <p className={`text-lg mb-8 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>You've answered all {questions.length} questions.</p>
             <div className="flex justify-center gap-10 mb-8">
               <div className="flex flex-col items-center">
                 <span className="text-3xl font-bold text-cyan-500">{formatTime(elapsedTime)}</span>
-                <span className="text-sm text-slate-400 uppercase tracking-wider">Total Time</span>
+                <span className={`text-sm uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Total Time</span>
               </div>
               <div className="flex flex-col items-center">
                 <span className="text-3xl font-bold text-cyan-500">{formatTime(avgTime)}</span>
-                <span className="text-sm text-slate-400 uppercase tracking-wider">Avg per Question</span>
+                <span className={`text-sm uppercase tracking-wider ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Avg per Question</span>
               </div>
             </div>
             <div className="flex gap-4 justify-center">
               <button 
-                className="px-7 py-3.5 bg-slate-100 text-slate-600 font-semibold rounded-xl hover:bg-slate-200 transition-all"
+                className={`px-7 py-3.5 font-semibold rounded-xl transition-all ${isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 onClick={() => {
                   setShowCompletionModal(false);
                   setViewMode('sequential');
@@ -322,9 +325,9 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
       </div>
 
       {/* Question Card */}
-      <div className={`bg-white rounded-3xl p-9 shadow-lg border border-black/5 transition-all duration-300 flex-1 ${isAnimating ? 'scale-[0.98] translate-y-1 opacity-70' : ''} ${viewMode === 'review' ? 'border-2 border-amber-500 shadow-amber-500/15' : ''}`}>
+      <div className={`rounded-3xl p-9 shadow-lg border transition-all duration-300 flex-1 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-black/5'} ${isAnimating ? 'scale-[0.98] translate-y-1 opacity-70' : ''} ${viewMode === 'review' ? 'border-2 border-amber-500 shadow-amber-500/15' : ''}`}>
         <div className="flex justify-between items-center mb-6">
-          <span className="bg-linear-to-br from-slate-100 to-slate-200 px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600">
+          <span className={`px-4 py-2.5 rounded-xl text-sm font-semibold ${isDark ? 'bg-slate-700 text-slate-300' : 'bg-linear-to-br from-slate-100 to-slate-200 text-slate-600'}`}>
             Question {currentIndex + 1} of {questions.length}
           </span>
           {!selectedValue && (
@@ -339,18 +342,18 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
           )}
         </div>
 
-         <p className="text-slate-400 text-xs text-center flex items-center justify-center gap-1">
+         <p className={`text-xs text-center flex items-center justify-center gap-1 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
           <span className="text-cyan-500">💡</span>
           <span>Hover the question for explanation</span>
         </p>
 
-        <h2 className="text-2xl leading-relaxed text-slate-800 mb-4 font-medium text-center italic">
+        <h2 className={`text-2xl leading-relaxed mb-4 font-medium text-center italic ${isDark ? 'text-white' : 'text-slate-800'}`}>
           <QuestionTooltip questionId={currentQuestion?.id}>
             "{currentQuestion?.text}"
           </QuestionTooltip>
         </h2>
 
-        <p className="text-slate-500 text-base mb-6 text-center">
+        <p className={`text-base mb-6 text-center ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
           How accurately does this statement describe you?
         </p>
         
@@ -363,14 +366,16 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
               className={`flex flex-col items-center py-6 px-3 border-2 rounded-2xl cursor-pointer transition-all duration-200 relative overflow-hidden group
                 ${selectedValue === option.value 
                   ? 'border-cyan-500 -translate-y-1.5 shadow-xl shadow-cyan-500/35 bg-linear-to-br from-cyan-500 to-blue-600' 
-                  : 'border-slate-200 bg-linear-to-b from-white to-slate-50 hover:border-cyan-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-cyan-500/20'
+                  : isDark
+                    ? 'border-slate-600 bg-slate-700 hover:border-cyan-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-cyan-500/20'
+                    : 'border-slate-200 bg-linear-to-b from-white to-slate-50 hover:border-cyan-500 hover:-translate-y-1 hover:shadow-lg hover:shadow-cyan-500/20'
                 }`}
               onClick={() => handleSelect(option.value)}
             >
               <span className={`text-3xl font-bold mb-2 transition-colors ${selectedValue === option.value ? 'text-white' : 'text-cyan-500'}`}>
                 {option.value}
               </span>
-              <span className={`text-xs text-center font-semibold leading-tight transition-colors ${selectedValue === option.value ? 'text-white' : 'text-slate-500'}`}>
+              <span className={`text-xs text-center font-semibold leading-tight transition-colors ${selectedValue === option.value ? 'text-white' : isDark ? 'text-slate-400' : 'text-slate-500'}`}>
                 {option.label}
               </span>
             </button>
@@ -378,8 +383,8 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
         </div>
 
         <div className="flex justify-between px-2 mb-2">
-          <span className="text-slate-400 text-sm font-medium">Very Inaccurate</span>
-          <span className="text-slate-400 text-sm font-medium">Very Accurate</span>
+          <span className={`text-sm font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Very Inaccurate</span>
+          <span className={`text-sm font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Very Accurate</span>
         </div>
       </div>
 
@@ -387,7 +392,7 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
       <div className="mt-auto">
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <button 
-            className="flex items-center gap-2 px-6 py-3.5 rounded-xl text-base font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 hover:-translate-x-0.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0"
+            className={`flex items-center gap-2 px-6 py-3.5 rounded-xl text-base font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-x-0 ${isDark ? 'bg-slate-700 text-slate-300 hover:bg-slate-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'} hover:-translate-x-0.5`}
             onClick={handlePrevious}
             disabled={currentIndex === 0}
           >
@@ -430,18 +435,18 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
       </div>
 
       {/* Question Navigator */}
-      <div className="bg-white rounded-2xl p-5 shadow-md border border-black/5">
+      <div className={`rounded-2xl p-5 shadow-md border ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-black/5'}`}>
         <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
-          <span className="text-sm font-semibold text-slate-600">Question Navigator</span>
+          <span className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>Question Navigator</span>
           <div className="flex gap-4">
-            <span className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               <span className="w-3 h-3 rounded bg-emerald-500"></span> Answered
             </span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-500">
+            <span className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
               <span className="w-3 h-3 rounded bg-cyan-500"></span> Current
             </span>
-            <span className="flex items-center gap-1.5 text-xs text-slate-500">
-              <span className="w-3 h-3 rounded border-2 border-slate-300 bg-transparent"></span> Unanswered
+            <span className={`flex items-center gap-1.5 text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+              <span className={`w-3 h-3 rounded border-2 bg-transparent ${isDark ? 'border-slate-500' : 'border-slate-300'}`}></span> Unanswered
             </span>
           </div>
         </div>
@@ -449,12 +454,14 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
           {questions.map((q, index) => (
             <button
               key={q.id}
-              className={`w-6 h-6 rounded-lg border-2 text-xs font-semibold flex items-center justify-center cursor-pointer transition-all hover:border-cyan-500 hover:bg-cyan-50 hover:scale-110
+              className={`w-6 h-6 rounded-lg border-2 text-xs font-semibold flex items-center justify-center cursor-pointer transition-all hover:border-cyan-500 hover:scale-110 ${isDark ? 'hover:bg-slate-600' : 'hover:bg-cyan-50'}
                 ${originalIndex === index 
                   ? 'border-cyan-500 bg-cyan-500 text-white scale-[1.15] shadow-lg shadow-cyan-500/40' 
                   : responses[q.id] 
                     ? 'bg-emerald-500 border-emerald-500 text-white' 
-                    : 'border-slate-200 bg-slate-50 text-slate-400'
+                    : isDark 
+                      ? 'border-slate-600 bg-slate-700 text-slate-400'
+                      : 'border-slate-200 bg-slate-50 text-slate-400'
                 }
                 ${responses[q.id] && originalIndex === index ? 'bg-linear-to-br from-cyan-500 to-cyan-400 border-cyan-500' : ''}`}
               onClick={() => handleGoToQuestion(index)}
@@ -467,26 +474,26 @@ export function QuestionCard({ onComplete, userData, surveyStartTime, questions,
       </div>
 
       {/* Stats Bar */}
-      <div className="flex justify-around items-center p-5 bg-white rounded-2xl shadow-md border border-black/5 flex-wrap gap-4">
+      <div className={`flex justify-around items-center p-5 rounded-2xl shadow-md border flex-wrap gap-4 ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-black/5'}`}>
         <div className="flex items-center gap-3">
           <div className="text-2xl">✅</div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold text-slate-800">{answeredCount}</span>
-            <span className="text-[0.7rem] text-slate-400 uppercase tracking-wider font-semibold">Answered</span>
+            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{answeredCount}</span>
+            <span className={`text-[0.7rem] uppercase tracking-wider font-semibold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Answered</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-2xl">⏳</div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold text-slate-800">{questions.length - answeredCount}</span>
-            <span className="text-[0.7rem] text-slate-400 uppercase tracking-wider font-semibold">Remaining</span>
+            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{questions.length - answeredCount}</span>
+            <span className={`text-[0.7rem] uppercase tracking-wider font-semibold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Remaining</span>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <div className="text-2xl">📊</div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold text-slate-800">{avgTime > 0 ? formatTime(avgTime) : '--:--'}</span>
-            <span className="text-[0.7rem] text-slate-400 uppercase tracking-wider font-semibold">Avg Time</span>
+            <span className={`text-xl font-bold ${isDark ? 'text-white' : 'text-slate-800'}`}>{avgTime > 0 ? formatTime(avgTime) : '--:--'}</span>
+            <span className={`text-[0.7rem] uppercase tracking-wider font-semibold ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>Avg Time</span>
           </div>
         </div>
         {isDevMode && (

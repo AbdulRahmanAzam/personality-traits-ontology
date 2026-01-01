@@ -19,7 +19,8 @@ from app.routes import (
     questions_router,
     assessment_router,
     results_router,
-    health_router
+    health_router,
+    admin_router
 )
 from app.routes.guidance import router as guidance_router
 
@@ -94,6 +95,7 @@ app.include_router(questions_router)
 app.include_router(assessment_router)
 app.include_router(results_router)
 app.include_router(guidance_router)
+app.include_router(admin_router)
 
 
 # Root redirect to docs

@@ -8,12 +8,30 @@ from ..db.mongodb import save_assessment
 
 router = APIRouter(prefix="/api", tags=["Assessment"])
 
+# Required number of questions for complete assessment
+REQUIRED_QUESTIONS = 50
+
 
 @router.post("/submit", response_model=AssessmentResult)
 async def submit_assessment(request: AssessmentRequest):
     """Process assessment and return scored results."""
     if not ontology_service.is_loaded:
         raise HTTPException(status_code=500, detail="Ontology not loaded")
+    
+    # Validate that all 50 questions are answered
+    if len(request.responses) < REQUIRED_QUESTIONS:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Incomplete assessment. Expected {REQUIRED_QUESTIONS} responses, got {len(request.responses)}. Please answer all questions."
+        )
+    
+    # Validate response values are in valid range (1-5)
+    for q_id, value in request.responses.items():
+        if not isinstance(value, int) or value < 1 or value > 5:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Invalid response value for question {q_id}. Expected 1-5, got {value}."
+            )
     
     result = assessment_service.process_assessment(
         responses=request.responses,

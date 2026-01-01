@@ -318,7 +318,7 @@
     :predictsOutcome :LeadershipEffectivenessOutcome .
 
  :ExtraversionNorm rdf:type :PopulationNorm ;
-    :populationMean 30.5 ;
+    :populationMean 29.6 ;
     :populationStd 6.2 ;
     :sampleSize 23994 .
 
@@ -327,7 +327,7 @@
     :hasNorm :AgreeablenessNorm .
 
 :AgreeablenessNorm rdf:type :PopulationNorm ;
-    :populationMean 36.8 ;
+    :populationMean 36.0 ;
     :populationStd 5.4 ;
     :sampleSize 23994 .
 
@@ -339,7 +339,7 @@
     :predictsOutcome :LeadershipEffectivenessOutcome .
 
 :ConscientiousnessNorm rdf:type :PopulationNorm ;
-    :populationMean 34.2 ;
+    :populationMean 32.3 ;
     :populationStd 5.8 ;
     :sampleSize 23994 .
 
@@ -349,7 +349,7 @@
      :predictsOutcome :JobPerformanceOutcome .
 
  :NeuroticismNorm rdf:type :PopulationNorm ;
-    :populationMean 25.3 ;
+    :populationMean 30.6 ;
     :populationStd 7.1 ;
     :sampleSize 23994 .
 
@@ -360,7 +360,7 @@
     :predictsOutcome :LeadershipEffectivenessOutcome .
 
 :OpennessNorm rdf:type :PopulationNorm ;
- :populationMean 35.1 ;
+ :populationMean 38.7 ;
     :populationStd 5.9 ;
     :sampleSize 23994 .
 
